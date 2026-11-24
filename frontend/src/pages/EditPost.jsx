@@ -46,7 +46,7 @@ function EditPost() {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://localhost:3000/posts/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
