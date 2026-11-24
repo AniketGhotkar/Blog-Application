@@ -1,103 +1,39 @@
-// const express = require("express");
 
-// const app = express();
-
-// app.get("/", (req, res) => {
-//     res.send("Welcome to Express.js!");
-// });
-
-// app.get("/products", (req, res) => {
-//     res.send("All Products");
-// });
-
-// app.post("/register", (req, res) => {
-//     res.send("User Registered");
-// });
-
-// app.get("/about", (req, res) => {
-//     res.send("About Us");
-// });
-
-// app.get("/contact", (req, res) => {
-//     res.send("Contacts Us")
-// });
-
-// app.get("/products/:id", (req, res) => {
-//     res.send(req.params.id);
-// });
-
-// app.get("/users/:id", (req, res) => {
-//     res.send(`User ID: ${req.params.id}`);
-// })
-
-// app.get("/search", (req, res) => {
-//      res.send(`Searching for ${req.query.name}`);
-// })
-
-// app.listen(3000, () => {
-//     console.log("Server running on port 3000");
-// });
+require("dotenv").config();
 
 const express = require("express");
-
 const cors = require("cors");
-
-
-const app = express();
 const connectDB = require("./db");
 
+const userRoutes = require("./routes/userRoutes");
+const postRoutes = require("./routes/postRoute");
+
+const app = express();
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
+// Middlewares
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 app.use(express.json());
 
+// Home route
 app.get("/", (req, res) => {
     res.send("Welcome to Express");
 });
 
-async function startServer() {
-    try {
-        await connectDB();
-
-        app.listen(process.env.PORT || 3000, () => {
-            console.log("Server running");
-        });
-
-    } catch (error) {
-        console.log("Database connection failed:", error.message);
-    }
-}
-
-startServer();
-
-// // Middleware
-// app.use((req, res, next) => {
-//     console.log("Request received");
-//     next();
-// });
-
-// // Route
-// app.get("/", (req, res) => {
-//     res.send("Welcome Home");
-// });
-
-app.use(express.json());
-
-app.use((err,req, res, next) => {
-    res.status(err.staus || 500).send(err.message);
-});
-
-
-const userRoutes = require("./routes/userRoutes");
-
-const postRoutes = require("./routes/postRoute");
-
+// API routes
+app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
-app.use("/users", userRoutes);
-
+// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
 
@@ -106,3 +42,21 @@ app.use((err, req, res, next) => {
     });
 });
 
+// Start server after database connection
+async function startServer() {
+    try {
+        await connectDB();
+
+        const PORT = process.env.PORT || 3000;
+
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+
+    } catch (error) {
+        console.log("Database connection failed:", error.message);
+        process.exit(1);
+    }
+}
+
+startServer();
