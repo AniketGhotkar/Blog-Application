@@ -11,7 +11,7 @@ function Register() {
     e.preventDefault();
 
     try {
-        const response = await fetch("http://localhost:3000/users/register", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

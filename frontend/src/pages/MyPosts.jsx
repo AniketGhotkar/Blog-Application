@@ -12,7 +12,7 @@ function MyPosts() {
             try {
                 const token = localStorage.getItem("token");
 
-                const response = await fetch("http://localhost:3000/posts/user", {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/user`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
